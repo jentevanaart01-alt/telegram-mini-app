@@ -288,3 +288,26 @@ Vul eerst API_URL in je code om echte sheet-data te laden.`;
   </script>
 </body>
 </html>   
+
+const tg = window.Telegram.WebApp;
+tg.expand();
+
+const API_URL = "PLAK_HIER_JE_APPS_SCRIPT_WEBAPP_URL";
+
+async function checkLogin() {
+  const initData = tg.initData; // <-- dit is je Telegram login proof
+
+  const res = await fetch(`${API_URL}?mode=whoami&initData=${encodeURIComponent(initData)}`);
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert("Geen toegang. Stuur je Telegram ID naar admin.");
+    return null;
+  }
+
+  console.log("Logged in:", data);
+  return data;
+}
+
+// call bij opstart
+checkLogin();
