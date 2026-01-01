@@ -1,111 +1,290 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Telegram Mini App</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      background: #0b0b0b;
-      color: white;
-      font-family: Arial, sans-serif;
+    body { margin:0; background:#0b0b0b; color:#fff; font-family: Arial, sans-serif; }
+    .content { padding:16px; padding-bottom:90px; }
+    .screen { display:none; }
+    .screen.active { display:block; }
+
+    h1 { margin: 8px 0 14px; font-size: 22px; }
+    .muted { color:#bdbdbd; font-size: 13px; }
+
+    /* Trip analyse layout */
+    .grid {
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
     }
 
-    .content {
-      padding: 20px;
-      padding-bottom: 90px; /* ruimte voor bottom bar */
+    .card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px;
     }
 
-    .screen {
-      display: none;
+    .trip-list {
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
     }
 
-    .screen.active {
-      display: block;
+    .trip-item {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      background: rgba(0,255,106,0.12);
+      border: 1px solid rgba(0,255,106,0.25);
+      border-radius: 12px;
+      padding: 10px 10px;
+      cursor:pointer;
+      user-select:none;
     }
+
+    .trip-item input { transform: scale(1.1); }
+    .trip-item span { font-size: 14px; color:#eafff2; }
+
+    .result {
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 140px;
+      overflow:auto;
+    }
+
+    .btn {
+      width:100%;
+      padding:12px 14px;
+      border-radius: 12px;
+      border: 0;
+      cursor: pointer;
+      font-weight: 700;
+      margin-top: 10px;
+    }
+    .btn-primary { background:#00ff6a; color:#000; }
+    .btn-outline { background:transparent; border:2px solid #00ff6a; color:#00ff6a; }
 
     /* Bottom bar */
     .bottom-bar {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
+      bottom: 0; left: 0; right: 0;
+      height: 74px;
       background: #00ff6a;
       display: flex;
       justify-content: space-around;
       align-items: center;
+      padding-bottom: env(safe-area-inset-bottom);
     }
 
     .tab {
-      color: black;
-      font-size: 14px;
-      cursor: pointer;
-      text-align: center;
+      color:#000;
+      font-size: 12px;
+      cursor:pointer;
+      text-align:center;
+      width: 33%;
+      user-select:none;
     }
+    .tab strong { display:block; font-size: 13px; }
+    .tab.active strong { text-decoration: underline; }
 
-    .tab.active {
-      font-weight: bold;
-      text-decoration: underline;
+    @media (max-width: 360px){
+      .trip-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
   </style>
 </head>
 
 <body>
-
   <div class="content">
 
-    <div id="home" class="screen active">
-      <h1>Home</h1>
-      <p>Welkom in je Mini App</p>
+    <!-- SCREEN 1: Trip Analyse -->
+    <div id="screen-trip" class="screen active">
+      <h1>Trip Analyse</h1>
+      <div class="muted">Kies een trip (NP41–NP68) of “Totaal analyse”. De analyse verschijnt hieronder.</div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="trip-list" id="tripList"></div>
+          <button class="btn btn-outline" onclick="refreshSelected()">Refresh analyse</button>
+        </div>
+
+        <div class="card">
+          <div class="muted" id="selectedLabel">Geen selectie</div>
+          <div class="result" id="analysisResult">Selecteer een trip om te starten…</div>
+        </div>
+      </div>
     </div>
 
-    <div id="wallet" class="screen">
-      <h1>Wallet</h1>
-      <p>Balance: $0.00</p>
-      <button>Deposit</button>
-      <button>Withdraw</button>
+    <!-- SCREEN 2: Export Data -->
+    <div id="screen-export" class="screen">
+      <h1>Export Data</h1>
+      <div class="card">
+        <div class="muted">Hier kan je later je exports tonen (bv. lijst van CSV’s, laatste import, fouten, …).</div>
+        <button class="btn btn-primary" onclick="demoExport()">Demo: laad export info</button>
+        <div class="result" id="exportResult" style="margin-top:10px;">Nog niets geladen.</div>
+      </div>
     </div>
 
-    <div id="invite" class="screen">
-      <h1>Invite</h1>
-      <p>Deel je invite link</p>
-    </div>
-
-    <div id="calculator" class="screen">
-      <h1>Calculator</h1>
-      <p>Berekeningen komen hier</p>
-    </div>
-
-    <div id="profile" class="screen">
-      <h1>Profile</h1>
-      <p>Gebruikersgegevens</p>
+    <!-- SCREEN 3: Planning -->
+    <div id="screen-planning" class="screen">
+      <h1>Planning</h1>
+      <div class="card">
+        <div class="muted">Hier kan je later je planning tonen (dag/week/maand) met filters.</div>
+        <button class="btn btn-primary" onclick="demoPlanning()">Demo: laad planning</button>
+        <div class="result" id="planningResult" style="margin-top:10px;">Nog niets geladen.</div>
+      </div>
     </div>
 
   </div>
 
+  <!-- Bottom navigation -->
   <div class="bottom-bar">
-    <div class="tab active" onclick="showScreen('home', this)">Home</div>
-    <div class="tab" onclick="showScreen('wallet', this)">Wallet</div>
-    <div class="tab" onclick="showScreen('invite', this)">Invite</div>
-    <div class="tab" onclick="showScreen('calculator', this)">Calc</div>
-    <div class="tab" onclick="showScreen('profile', this)">Profile</div>
+    <div class="tab active" onclick="showScreen('screen-trip', this)"><strong>Trip Analyse</strong></div>
+    <div class="tab" onclick="showScreen('screen-export', this)"><strong>Export Data</strong></div>
+    <div class="tab" onclick="showScreen('screen-planning', this)"><strong>Planning</strong></div>
   </div>
 
   <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
+    // Telegram init (maakt scherm groot)
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.expand();
+
+    // === BELANGRIJK: vul dit in met jouw Apps Script WebApp URL ===
+    // Voorbeeld: https://script.google.com/macros/s/XXXX/exec
+    const API_URL = "PLAK_HIER_JE_WEBAPP_URL";
+    // Optioneel secret (als je dat gebruikt in doGet)
+    const API_SECRET = ""; // bv "MIJN_SECRET_123"
+
+    // Maak NP41..NP68 + Totaal analyse
+    const trips = [];
+    for (let i = 41; i <= 68; i++) trips.push(`NP${i}`);
+    trips.push("Totaal analyse");
+
+    let selectedTrip = null;
+
+    // Bouw de checkbox lijst
+    const tripListEl = document.getElementById("tripList");
+    trips.forEach(name => {
+      const wrap = document.createElement("label");
+      wrap.className = "trip-item";
+      wrap.innerHTML = `
+        <input type="checkbox" data-trip="${name}">
+        <span>${name}</span>
+      `;
+      wrap.addEventListener("click", (e) => {
+        // checkbox klik netjes afhandelen: 1 selectie tegelijk
+        const cb = wrap.querySelector("input");
+        if (e.target !== cb) cb.checked = !cb.checked;
+
+        document.querySelectorAll('.trip-item input[type="checkbox"]').forEach(x => {
+          if (x !== cb) x.checked = false;
+        });
+
+        selectedTrip = cb.checked ? cb.dataset.trip : null;
+        updateSelectedLabel();
+
+        if (selectedTrip) loadTripAnalysis(selectedTrip);
+        else {
+          document.getElementById("analysisResult").innerText = "Selecteer een trip om te starten…";
+        }
+        e.preventDefault();
+      });
+
+      tripListEl.appendChild(wrap);
+    });
+
+    function updateSelectedLabel() {
+      document.getElementById("selectedLabel").innerText =
+        selectedTrip ? `Geselecteerd: ${selectedTrip}` : "Geen selectie";
+    }
 
     function showScreen(id, el) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      el.classList.add("active");
+    }
 
-      document.getElementById(id).classList.add('active');
-      el.classList.add('active');
+    async function loadTripAnalysis(tripName) {
+      const out = document.getElementById("analysisResult");
+      out.innerText = `Laden… (${tripName})`;
+
+      // Als je nog geen API hebt, toon demo
+      if (!API_URL || API_URL.includes("PLAK_HIER")) {
+        out.innerText =
+`[DEMO]
+Analyse voor ${tripName}
+
+- Totaal ritten: 12
+- Totaal klanten: 27
+- Km: 184
+- Opmerkingen: geen
+
+Vul eerst API_URL in je code om echte sheet-data te laden.`;
+        return;
+      }
+
+      try {
+        // We roepen je Apps Script aan met parameters.
+        // Jij kan in Apps Script doGet(e) op basis van e.parameter.trip de juiste analyse teruggeven.
+        const params = new URLSearchParams();
+        params.set("mode", "tripAnalyse");
+        params.set("trip", tripName);
+
+        if (API_SECRET) params.set("secret", API_SECRET);
+
+        // Optioneel: Telegram user id meegeven
+        if (tg?.initDataUnsafe?.user?.id) params.set("tgUserId", String(tg.initDataUnsafe.user.id));
+
+        const url = `${API_URL}?${params.toString()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.ok) {
+          out.innerText = `Error: ${data.error || "Onbekend"}`;
+          return;
+        }
+
+        // Verwacht: { ok:true, trip:"NP41", analysisText:"...", rows: [...] }
+        if (data.analysisText) {
+          out.innerText = data.analysisText;
+        } else if (data.rows) {
+          out.innerText = JSON.stringify(data.rows, null, 2);
+        } else {
+          out.innerText = JSON.stringify(data, null, 2);
+        }
+      } catch (err) {
+        out.innerText = `Fout bij laden: ${err?.message || err}`;
+      }
+    }
+
+    function refreshSelected() {
+      if (!selectedTrip) {
+        alert("Selecteer eerst een trip.");
+        return;
+      }
+      loadTripAnalysis(selectedTrip);
+    }
+
+    // Demo knoppen voor andere tabs (later vervangen door echte API calls)
+    function demoExport() {
+      const el = document.getElementById("exportResult");
+      el.innerText = `DEMO Export Data\n\n- Laatste CSV: export_mobilepatrol_2026-01-01.csv\n- Verwerkte rijen: 312\n- Fouten: 0`;
+    }
+
+    function demoPlanning() {
+      const el = document.getElementById("planningResult");
+      el.innerText = `DEMO Planning\n\n01/01: D1=Jan, D2=Piet, ...\n02/01: D1=...\n\n(Volgende stap: echte planning uit je sheet ophalen)`;
     }
   </script>
-
 </body>
-</html>
+</html>   
