@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Mini App</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    body {
+      background: #0b0b0b;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    button {
+      width: 90%;
+      padding: 20px;
+      margin: 15px 0;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .deposit {
+      background: #00ff6a;
+      color: black;
+    }
+
+    .withdraw {
+      background: transparent;
+      color: #00ff6a;
+      border: 2px solid #00ff6a;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Manage your balance</h1>
+
+  <button class="deposit" onclick="deposit()">Deposit</button>
+  <button class="withdraw" onclick="withdraw()">Withdraw</button>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    function deposit() {
+      alert("Deposit geklikt");
+    }
+
+    function withdraw() {
+      alert("Withdraw geklikt");
+    }
+  </script>
+</body>
+</html>
