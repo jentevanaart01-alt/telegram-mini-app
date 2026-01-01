@@ -3,62 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <title>Telegram Mini App</title>
-
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
     body {
+      margin: 0;
       background: #0b0b0b;
       color: white;
       font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 30px;
     }
 
-    h1 {
-      margin-bottom: 30px;
-    }
-
-    button {
-      width: 90%;
+    .content {
       padding: 20px;
-      margin: 15px 0;
-      font-size: 18px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
+      padding-bottom: 90px; /* ruimte voor bottom bar */
     }
 
-    .deposit {
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    /* Bottom bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
       background: #00ff6a;
-      color: black;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
     }
 
-    .withdraw {
-      background: transparent;
-      color: #00ff6a;
-      border: 2px solid #00ff6a;
+    .tab {
+      color: black;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .tab.active {
+      font-weight: bold;
+      text-decoration: underline;
     }
   </style>
 </head>
 
 <body>
-  <h1>Manage your balance</h1>
 
-  <button class="deposit" onclick="deposit()">Deposit</button>
-  <button class="withdraw" onclick="withdraw()">Withdraw</button>
+  <div class="content">
+
+    <div id="home" class="screen active">
+      <h1>Home</h1>
+      <p>Welkom in je Mini App</p>
+    </div>
+
+    <div id="wallet" class="screen">
+      <h1>Wallet</h1>
+      <p>Balance: $0.00</p>
+      <button>Deposit</button>
+      <button>Withdraw</button>
+    </div>
+
+    <div id="invite" class="screen">
+      <h1>Invite</h1>
+      <p>Deel je invite link</p>
+    </div>
+
+    <div id="calculator" class="screen">
+      <h1>Calculator</h1>
+      <p>Berekeningen komen hier</p>
+    </div>
+
+    <div id="profile" class="screen">
+      <h1>Profile</h1>
+      <p>Gebruikersgegevens</p>
+    </div>
+
+  </div>
+
+  <div class="bottom-bar">
+    <div class="tab active" onclick="showScreen('home', this)">Home</div>
+    <div class="tab" onclick="showScreen('wallet', this)">Wallet</div>
+    <div class="tab" onclick="showScreen('invite', this)">Invite</div>
+    <div class="tab" onclick="showScreen('calculator', this)">Calc</div>
+    <div class="tab" onclick="showScreen('profile', this)">Profile</div>
+  </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    function deposit() {
-      alert("Deposit geklikt");
-    }
+    function showScreen(id, el) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 
-    function withdraw() {
-      alert("Withdraw geklikt");
+      document.getElementById(id).classList.add('active');
+      el.classList.add('active');
     }
   </script>
+
 </body>
 </html>
