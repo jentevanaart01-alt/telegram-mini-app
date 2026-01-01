@@ -1,313 +1,228 @@
 <!DOCTYPE html>
-<html>
+<html lang="nl">
 <head>
-  <meta charset="UTF-8" />
-  <title>Telegram Mini App</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<meta charset="UTF-8">
+<title>Mobile AL</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <style>
-    body { margin:0; background:#0b0b0b; color:#fff; font-family: Arial, sans-serif; }
-    .content { padding:16px; padding-bottom:90px; }
-    .screen { display:none; }
-    .screen.active { display:block; }
+<style>
+body {
+  margin: 0;
+  background: #0b0b0b;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
 
-    h1 { margin: 8px 0 14px; font-size: 22px; }
-    .muted { color:#bdbdbd; font-size: 13px; }
+/* ===== TOP BAR ===== */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #111;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  z-index: 10;
+}
 
-    /* Trip analyse layout */
-    .grid {
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
+.user-box {
+  background: rgba(0,255,106,0.15);
+  border: 1px solid rgba(0,255,106,0.4);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
 
-    .card {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 14px;
-    }
+.user-name {
+  font-size: 13px;
+  font-weight: bold;
+}
 
-    .trip-list {
-      display:grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
+.app-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #00ff6a;
+}
 
-    .trip-item {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      background: rgba(0,255,106,0.12);
-      border: 1px solid rgba(0,255,106,0.25);
-      border-radius: 12px;
-      padding: 10px 10px;
-      cursor:pointer;
-      user-select:none;
-    }
+/* ===== CONTENT ===== */
+.content {
+  padding: 16px;
+  padding-top: 80px;
+  padding-bottom: 90px;
+}
 
-    .trip-item input { transform: scale(1.1); }
-    .trip-item span { font-size: 14px; color:#eafff2; }
+.screen { display: none; }
+.screen.active { display: block; }
 
-    .result {
-      white-space: pre-wrap;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      line-height: 1.35;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 12px;
-      min-height: 140px;
-      overflow:auto;
-    }
+.card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
 
-    .btn {
-      width:100%;
-      padding:12px 14px;
-      border-radius: 12px;
-      border: 0;
-      cursor: pointer;
-      font-weight: 700;
-      margin-top: 10px;
-    }
-    .btn-primary { background:#00ff6a; color:#000; }
-    .btn-outline { background:transparent; border:2px solid #00ff6a; color:#00ff6a; }
+.trip-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
 
-    /* Bottom bar */
-    .bottom-bar {
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 74px;
-      background: #00ff6a;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+.trip-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,255,106,0.15);
+  border: 1px solid rgba(0,255,106,0.35);
+  border-radius: 10px;
+  padding: 8px;
+  cursor: pointer;
+}
 
-    .tab {
-      color:#000;
-      font-size: 12px;
-      cursor:pointer;
-      text-align:center;
-      width: 33%;
-      user-select:none;
-    }
-    .tab strong { display:block; font-size: 13px; }
-    .tab.active strong { text-decoration: underline; }
+.trip-item span {
+  font-size: 13px;
+}
 
-    @media (max-width: 360px){
-      .trip-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-  </style>
+.result {
+  background: rgba(0,0,0,0.35);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  min-height: 120px;
+}
+
+/* ===== BOTTOM BAR ===== */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background: #00ff6a;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.tab {
+  color: #000;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  width: 33%;
+}
+
+.tab.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+</style>
 </head>
 
 <body>
-  <div class="content">
 
-    <!-- SCREEN 1: Trip Analyse -->
-    <div id="screen-trip" class="screen active">
-      <h1>Trip Analyse</h1>
-      <div class="muted">Kies een trip (NP41–NP68) of “Totaal analyse”. De analyse verschijnt hieronder.</div>
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="user-box">
+    <div class="user-name" id="userName">Niet ingelogd</div>
+  </div>
+  <div class="app-title">Mobile AL</div>
+</div>
 
-      <div class="grid">
-        <div class="card">
-          <div class="trip-list" id="tripList"></div>
-          <button class="btn btn-outline" onclick="refreshSelected()">Refresh analyse</button>
-        </div>
+<!-- CONTENT -->
+<div class="content">
 
-        <div class="card">
-          <div class="muted" id="selectedLabel">Geen selectie</div>
-          <div class="result" id="analysisResult">Selecteer een trip om te starten…</div>
-        </div>
-      </div>
+  <!-- TRIP ANALYSE -->
+  <div id="trip" class="screen active">
+    <h2>Trip Analyse</h2>
+
+    <div class="card">
+      <div class="trip-list" id="tripList"></div>
     </div>
 
-    <!-- SCREEN 2: Export Data -->
-    <div id="screen-export" class="screen">
-      <h1>Export Data</h1>
-      <div class="card">
-        <div class="muted">Hier kan je later je exports tonen (bv. lijst van CSV’s, laatste import, fouten, …).</div>
-        <button class="btn btn-primary" onclick="demoExport()">Demo: laad export info</button>
-        <div class="result" id="exportResult" style="margin-top:10px;">Nog niets geladen.</div>
+    <div class="card">
+      <div class="result" id="analysisResult">
+        Selecteer een trip…
       </div>
     </div>
-
-    <!-- SCREEN 3: Planning -->
-    <div id="screen-planning" class="screen">
-      <h1>Planning</h1>
-      <div class="card">
-        <div class="muted">Hier kan je later je planning tonen (dag/week/maand) met filters.</div>
-        <button class="btn btn-primary" onclick="demoPlanning()">Demo: laad planning</button>
-        <div class="result" id="planningResult" style="margin-top:10px;">Nog niets geladen.</div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- Bottom navigation -->
-  <div class="bottom-bar">
-    <div class="tab active" onclick="showScreen('screen-trip', this)"><strong>Trip Analyse</strong></div>
-    <div class="tab" onclick="showScreen('screen-export', this)"><strong>Export Data</strong></div>
-    <div class="tab" onclick="showScreen('screen-planning', this)"><strong>Planning</strong></div>
+  <!-- EXPORT -->
+  <div id="export" class="screen">
+    <h2>Export Data</h2>
+    <div class="card result">
+      Export informatie komt hier.
+    </div>
   </div>
 
-  <script>
-    // Telegram init (maakt scherm groot)
-    const tg = window.Telegram?.WebApp;
-    if (tg) tg.expand();
+  <!-- PLANNING -->
+  <div id="planning" class="screen">
+    <h2>Planning</h2>
+    <div class="card result">
+      Planning overzicht komt hier.
+    </div>
+  </div>
 
-    // === BELANGRIJK: vul dit in met jouw Apps Script WebApp URL ===
-    // Voorbeeld: https://script.google.com/macros/s/XXXX/exec
-    const API_URL = "PLAK_HIER_JE_WEBAPP_URL";
-    // Optioneel secret (als je dat gebruikt in doGet)
-    const API_SECRET = ""; // bv "MIJN_SECRET_123"
+</div>
 
-    // Maak NP41..NP68 + Totaal analyse
-    const trips = [];
-    for (let i = 41; i <= 68; i++) trips.push(`NP${i}`);
-    trips.push("Totaal analyse");
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="tab active" onclick="switchTab('trip', this)">Trip Analyse</div>
+  <div class="tab" onclick="switchTab('export', this)">Export Data</div>
+  <div class="tab" onclick="switchTab('planning', this)">Planning</div>
+</div>
 
-    let selectedTrip = null;
-
-    // Bouw de checkbox lijst
-    const tripListEl = document.getElementById("tripList");
-    trips.forEach(name => {
-      const wrap = document.createElement("label");
-      wrap.className = "trip-item";
-      wrap.innerHTML = `
-        <input type="checkbox" data-trip="${name}">
-        <span>${name}</span>
-      `;
-      wrap.addEventListener("click", (e) => {
-        // checkbox klik netjes afhandelen: 1 selectie tegelijk
-        const cb = wrap.querySelector("input");
-        if (e.target !== cb) cb.checked = !cb.checked;
-
-        document.querySelectorAll('.trip-item input[type="checkbox"]').forEach(x => {
-          if (x !== cb) x.checked = false;
-        });
-
-        selectedTrip = cb.checked ? cb.dataset.trip : null;
-        updateSelectedLabel();
-
-        if (selectedTrip) loadTripAnalysis(selectedTrip);
-        else {
-          document.getElementById("analysisResult").innerText = "Selecteer een trip om te starten…";
-        }
-        e.preventDefault();
-      });
-
-      tripListEl.appendChild(wrap);
-    });
-
-    function updateSelectedLabel() {
-      document.getElementById("selectedLabel").innerText =
-        selectedTrip ? `Geselecteerd: ${selectedTrip}` : "Geen selectie";
-    }
-
-    function showScreen(id, el) {
-      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      el.classList.add("active");
-    }
-
-    async function loadTripAnalysis(tripName) {
-      const out = document.getElementById("analysisResult");
-      out.innerText = `Laden… (${tripName})`;
-
-      // Als je nog geen API hebt, toon demo
-      if (!API_URL || API_URL.includes("PLAK_HIER")) {
-        out.innerText =
-`[DEMO]
-Analyse voor ${tripName}
-
-- Totaal ritten: 12
-- Totaal klanten: 27
-- Km: 184
-- Opmerkingen: geen
-
-Vul eerst API_URL in je code om echte sheet-data te laden.`;
-        return;
-      }
-
-      try {
-        // We roepen je Apps Script aan met parameters.
-        // Jij kan in Apps Script doGet(e) op basis van e.parameter.trip de juiste analyse teruggeven.
-        const params = new URLSearchParams();
-        params.set("mode", "tripAnalyse");
-        params.set("trip", tripName);
-
-        if (API_SECRET) params.set("secret", API_SECRET);
-
-        // Optioneel: Telegram user id meegeven
-        if (tg?.initDataUnsafe?.user?.id) params.set("tgUserId", String(tg.initDataUnsafe.user.id));
-
-        const url = `${API_URL}?${params.toString()}`;
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (!data.ok) {
-          out.innerText = `Error: ${data.error || "Onbekend"}`;
-          return;
-        }
-
-        // Verwacht: { ok:true, trip:"NP41", analysisText:"...", rows: [...] }
-        if (data.analysisText) {
-          out.innerText = data.analysisText;
-        } else if (data.rows) {
-          out.innerText = JSON.stringify(data.rows, null, 2);
-        } else {
-          out.innerText = JSON.stringify(data, null, 2);
-        }
-      } catch (err) {
-        out.innerText = `Fout bij laden: ${err?.message || err}`;
-      }
-    }
-
-    function refreshSelected() {
-      if (!selectedTrip) {
-        alert("Selecteer eerst een trip.");
-        return;
-      }
-      loadTripAnalysis(selectedTrip);
-    }
-
-    // Demo knoppen voor andere tabs (later vervangen door echte API calls)
-    function demoExport() {
-      const el = document.getElementById("exportResult");
-      el.innerText = `DEMO Export Data\n\n- Laatste CSV: export_mobilepatrol_2026-01-01.csv\n- Verwerkte rijen: 312\n- Fouten: 0`;
-    }
-
-    function demoPlanning() {
-      const el = document.getElementById("planningResult");
-      el.innerText = `DEMO Planning\n\n01/01: D1=Jan, D2=Piet, ...\n02/01: D1=...\n\n(Volgende stap: echte planning uit je sheet ophalen)`;
-    }
-  </script>
-</body>
-</html>   
-
+<script>
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-const API_URL = "PLAK_HIER_JE_APPS_SCRIPT_WEBAPP_URL";
-
-async function checkLogin() {
-  const initData = tg.initData; // <-- dit is je Telegram login proof
-
-  const res = await fetch(`${API_URL}?mode=whoami&initData=${encodeURIComponent(initData)}`);
-  const data = await res.json();
-
-  if (!data.ok) {
-    alert("Geen toegang. Stuur je Telegram ID naar admin.");
-    return null;
-  }
-
-  console.log("Logged in:", data);
-  return data;
+/* ===== LOGIN INFO ===== */
+if (tg.initDataUnsafe?.user) {
+  document.getElementById("userName").innerText =
+    tg.initDataUnsafe.user.first_name || "Gebruiker";
 }
 
-// call bij opstart
-checkLogin();
+/* ===== TABS ===== */
+function switchTab(id, el) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  el.classList.add("active");
+}
+
+/* ===== TRIPS ===== */
+const tripList = document.getElementById("tripList");
+const analysisResult = document.getElementById("analysisResult");
+
+const trips = [];
+for (let i = 41; i <= 68; i++) trips.push("NP" + i);
+trips.push("Totaal analyse");
+
+trips.forEach(trip => {
+  const div = document.createElement("div");
+  div.className = "trip-item";
+  div.innerHTML = `<span>${trip}</span>`;
+  div.onclick = () => loadAnalysis(trip);
+  tripList.appendChild(div);
+});
+
+/* ===== ANALYSE (DEMO) ===== */
+function loadAnalysis(trip) {
+  analysisResult.innerText =
+`Analyse voor ${trip}
+
+- Aantal ritten: 12
+- Klanten: 27
+- KM totaal: 184
+- Afwijkingen: geen
+
+(Koppeling met Google Sheet komt hier)`;
+}
+</script>
+
+</body>
+</html>
