@@ -1,415 +1,437 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mobile AL</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobile AL</title>
 
-<style>
-  :root{
-    --bg: #0b0f17;
-    --panel: rgba(255,255,255,0.06);
-    --panel2: rgba(255,255,255,0.04);
-    --border: rgba(255,255,255,0.10);
-    --text: rgba(255,255,255,0.92);
-    --muted: rgba(255,255,255,0.62);
-    --muted2: rgba(255,255,255,0.45);
-    --accent: #7c5cff;          /* paars */
-    --accent2: #2ee59d;         /* groen (sub-accent) */
-    --shadow: 0 12px 30px rgba(0,0,0,0.35);
-    --radius: 18px;
-    --radius2: 14px;
-  }
+  <!-- ✅ PWA -->
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0b0f17">
 
-  * { box-sizing: border-box; }
-  body{
-    margin:0;
-    background: radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,0.25), transparent 60%),
-                radial-gradient(900px 500px at 110% 10%, rgba(46,229,157,0.18), transparent 55%),
-                var(--bg);
-    color: var(--text);
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  }
+  <!-- Telegram WebApp bridge (werkt enkel in Telegram webview, buiten Telegram doen we checks) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  /* ===== Top bar ===== */
-  .top-bar{
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 70px;
-    padding: 12px 14px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-    background: rgba(11,15,23,0.72);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
+  <style>
+    :root{
+      --bg: #0b0f17;
+      --panel: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.10);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.62);
+      --muted2: rgba(255,255,255,0.45);
+      --accent: #7c5cff;
+      --accent2: #2ee59d;
+      --shadow: 0 12px 30px rgba(0,0,0,0.35);
+      --radius: 18px;
+    }
 
-  .user-pill{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
-  }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,0.25), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(46,229,157,0.18), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
 
-  .avatar{
-    width: 34px; height: 34px;
-    border-radius: 999px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background: linear-gradient(135deg, rgba(124,92,255,0.9), rgba(46,229,157,0.85));
-    color: #0b0f17;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-  }
+    /* ===== Top bar ===== */
+    .top-bar{
+      position:fixed;
+      top:0; left:0; right:0;
+      height:70px;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,23,0.72);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
 
-  .user-meta{ line-height: 1.1; }
-  .user-name{ font-size: 13px; font-weight: 750; }
-  .user-sub{ font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .user-pill{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      max-width: 65%;
+    }
 
-  .brand{
-    font-weight: 850;
-    letter-spacing: 0.6px;
-    display:flex;
-    align-items:center;
-    gap: 10px;
-  }
-  .brand-badge{
-    width: 10px; height: 10px;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 0 6px rgba(124,92,255,0.15);
-  }
-  .brand-title{ font-size: 15px; color: rgba(255,255,255,0.92); }
+    .avatar{
+      width:34px; height:34px;
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(135deg, rgba(124,92,255,0.9), rgba(46,229,157,0.85));
+      color: #0b0f17;
+      font-weight: 900;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+      flex: 0 0 auto;
+    }
 
-  /* ===== Content ===== */
-  .content{
-    padding: 14px;
-    padding-top: 86px;
-    padding-bottom: 92px;
-    max-width: 720px;
-    margin: 0 auto;
-  }
+    .user-meta{ line-height:1.15; min-width: 0; }
+    .user-name{
+      font-size:13px;
+      font-weight:800;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .user-sub{
+      font-size:11px;
+      color: var(--muted);
+      margin-top:2px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
 
-  .screen{ display:none; }
-  .screen.active{ display:block; }
+    .brand{
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex: 0 0 auto;
+    }
+    .brand-badge{
+      width:10px; height:10px;
+      border-radius:999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(124,92,255,0.15);
+    }
+    .brand-title{
+      font-size:15px;
+      color: rgba(255,255,255,0.92);
+    }
 
-  .page-title{
-    margin: 8px 0 4px;
-    font-size: 22px;
-    font-weight: 850;
-    letter-spacing: -0.2px;
-  }
-  .page-subtitle{
-    margin: 0 0 14px;
-    font-size: 13px;
-    color: var(--muted);
-  }
+    /* ===== Content ===== */
+    .content{
+      padding:14px;
+      padding-top:86px;
+      padding-bottom:92px;
+      max-width:720px;
+      margin:0 auto;
+    }
 
-  .card{
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px;
-    box-shadow: var(--shadow);
-  }
+    .screen{ display:none; }
+    .screen.active{ display:block; }
 
-  .card + .card{ margin-top: 12px; }
+    .page-title{
+      margin: 8px 0 4px;
+      font-size:22px;
+      font-weight: 900;
+      letter-spacing: -0.2px;
+    }
+    .page-subtitle{
+      margin: 0 0 14px;
+      font-size:13px;
+      color: var(--muted);
+    }
 
-  /* ===== Trip chips ===== */
-  .chip-grid{
-    display:grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
-  }
+    .card{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding:14px;
+      box-shadow: var(--shadow);
+    }
+    .card + .card{ margin-top:12px; }
 
-  .chip{
-    padding: 10px 10px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.10);
-    background: rgba(255,255,255,0.04);
-    color: rgba(255,255,255,0.85);
-    font-size: 12px;
-    font-weight: 750;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    cursor:pointer;
-    user-select:none;
-    transition: transform 0.08s ease, background 0.18s ease, border 0.18s ease;
-  }
-  .chip:active{ transform: scale(0.98); }
-  .chip.active{
-    background: linear-gradient(135deg, rgba(124,92,255,0.35), rgba(46,229,157,0.22));
-    border: 1px solid rgba(124,92,255,0.55);
-    color: rgba(255,255,255,0.95);
-  }
+    /* ===== Trip chips ===== */
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .badge{
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.92);
+      background: rgba(124,92,255,0.18);
+      border: 1px solid rgba(124,92,255,0.35);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .btn{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.92);
+      cursor:pointer;
+      font-weight: 900;
+    }
+    .btn:active{ transform: scale(0.99); }
 
-  .row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
+    .chip-grid{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap:10px;
+    }
+    .chip{
+      padding: 10px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.85);
+      font-size: 12px;
+      font-weight: 850;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      cursor:pointer;
+      user-select:none;
+      transition: transform 0.08s ease, background 0.18s ease, border 0.18s ease;
+    }
+    .chip:active{ transform: scale(0.98); }
+    .chip.active{
+      background: linear-gradient(135deg, rgba(124,92,255,0.35), rgba(46,229,157,0.22));
+      border: 1px solid rgba(124,92,255,0.55);
+      color: rgba(255,255,255,0.95);
+    }
 
-  .badge{
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 750;
-    color: rgba(255,255,255,0.92);
-    background: rgba(124,92,255,0.18);
-    border: 1px solid rgba(124,92,255,0.35);
-  }
+    .result{
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 150px;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.86);
+    }
+    .hint{
+      color: var(--muted2);
+      font-size: 12px;
+      margin-top: 10px;
+    }
 
-  .btn{
-    padding: 10px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.05);
-    color: rgba(255,255,255,0.92);
-    cursor:pointer;
-    font-weight: 800;
-  }
-  .btn:active{ transform: scale(0.99); }
+    /* ===== Bottom nav ===== */
+    .bottom-bar{
+      position:fixed;
+      bottom:0; left:0; right:0;
+      height:76px;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      display:flex;
+      justify-content:space-around;
+      align-items:flex-end;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,23,0.72);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .tab{
+      width:33%;
+      text-align:center;
+      cursor:pointer;
+      user-select:none;
+      padding: 8px 8px;
+      border-radius: 16px;
+      transition: background 0.15s ease, border 0.15s ease;
+    }
+    .tab .icon{
+      display:block;
+      font-size: 16px;
+      line-height: 1;
+      margin-bottom: 6px;
+      color: rgba(255,255,255,0.70);
+    }
+    .tab .label{
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.72);
+    }
+    .tab.active{
+      background: rgba(124,92,255,0.14);
+      border: 1px solid rgba(124,92,255,0.28);
+    }
+    .tab.active .icon{ color: rgba(255,255,255,0.92); }
+    .tab.active .label{ color: rgba(255,255,255,0.92); }
 
-  .result{
-    background: rgba(0,0,0,0.22);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px;
-    padding: 12px;
-    min-height: 150px;
-    white-space: pre-wrap;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: 12px;
-    line-height: 1.45;
-    color: rgba(255,255,255,0.86);
-  }
-
-  .hint{
-    color: var(--muted2);
-    font-size: 12px;
-    margin-top: 10px;
-  }
-
-  /* ===== Bottom nav ===== */
-  .bottom-bar{
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: 76px;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-    display:flex;
-    justify-content:space-around;
-    align-items:flex-end;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-    background: rgba(11,15,23,0.72);
-    border-top: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .tab{
-    width: 33%;
-    text-align:center;
-    cursor:pointer;
-    user-select:none;
-    padding: 8px 8px;
-    border-radius: 16px;
-    transition: background 0.15s ease, border 0.15s ease;
-  }
-
-  .tab .icon{
-    display:block;
-    font-size: 16px;
-    line-height: 1;
-    margin-bottom: 6px;
-    color: rgba(255,255,255,0.70);
-  }
-  .tab .label{
-    font-size: 12px;
-    font-weight: 800;
-    color: rgba(255,255,255,0.72);
-  }
-
-  .tab.active{
-    background: rgba(124,92,255,0.14);
-    border: 1px solid rgba(124,92,255,0.28);
-  }
-  .tab.active .icon{ color: rgba(255,255,255,0.90); }
-  .tab.active .label{ color: rgba(255,255,255,0.92); }
-
-  @media (max-width: 380px){
-    .chip-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  }
-</style>
+    @media (max-width: 380px){
+      .chip-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- Top Bar -->
-<div class="top-bar">
-  <div class="user-pill">
-    <div class="avatar" id="avatar">?</div>
-    <div class="user-meta">
-      <div class="user-name" id="userName">Niet ingelogd</div>
-      <div class="user-sub" id="userSub">Telegram</div>
-    </div>
-  </div>
-
-  <div class="brand">
-    <div class="brand-badge"></div>
-    <div class="brand-title">Mobile AL</div>
-  </div>
-</div>
-
-<!-- Content -->
-<div class="content">
-
-  <!-- Trip Analyse -->
-  <div id="screen-trip" class="screen active">
-    <div class="page-title">Trip Analyse</div>
-    <div class="page-subtitle">Selecteer een trip (NP41–NP68) of “Totaal”. De analyse verschijnt hieronder.</div>
-
-    <div class="card">
-      <div class="row">
-        <div class="badge" id="selectedBadge">Geen selectie</div>
-        <button class="btn" onclick="refreshSelected()">Refresh</button>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="user-pill">
+      <div class="avatar" id="avatar">?</div>
+      <div class="user-meta">
+        <div class="user-name" id="userName">Niet ingelogd</div>
+        <div class="user-sub" id="userSub">PWA / Browser</div>
       </div>
-      <div class="chip-grid" id="tripChips"></div>
-      <div class="hint">Tip: we koppelen dit straks aan je Google Sheet (Apps Script API).</div>
     </div>
 
-    <div class="card">
-      <div class="result" id="analysisResult">Selecteer een trip om te starten…</div>
-    </div>
-  </div>
-
-  <!-- Export Data -->
-  <div id="screen-export" class="screen">
-    <div class="page-title">Export Data</div>
-    <div class="page-subtitle">Overzicht van exports, import status en fouten.</div>
-    <div class="card">
-      <div class="result" id="exportResult">Nog niets geladen.</div>
-      <div class="hint">Later: fetch export logs uit je sheet / script.</div>
+    <div class="brand">
+      <div class="brand-badge"></div>
+      <div class="brand-title">Mobile AL</div>
     </div>
   </div>
 
-  <!-- Planning -->
-  <div id="screen-planning" class="screen">
-    <div class="page-title">Planning</div>
-    <div class="page-subtitle">Bekijk planning per dag/week/maand met filters.</div>
-    <div class="card">
-      <div class="result" id="planningResult">Nog niets geladen.</div>
-      <div class="hint">Later: kalenderweergave + zoeken per agent.</div>
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Trip Analyse -->
+    <div id="screen-trip" class="screen active">
+      <div class="page-title">Trip Analyse</div>
+      <div class="page-subtitle">Selecteer een trip (NP41–NP68) of “Totaal”. De analyse verschijnt hieronder.</div>
+
+      <div class="card">
+        <div class="row">
+          <div class="badge" id="selectedBadge">Geen selectie</div>
+          <button class="btn" onclick="refreshSelected()">Refresh</button>
+        </div>
+
+        <div class="chip-grid" id="tripChips"></div>
+        <div class="hint">Later koppelen we dit aan je Apps Script API (Google Sheet).</div>
+      </div>
+
+      <div class="card">
+        <div class="result" id="analysisResult">Selecteer een trip om te starten…</div>
+      </div>
+    </div>
+
+    <!-- Export Data -->
+    <div id="screen-export" class="screen">
+      <div class="page-title">Export Data</div>
+      <div class="page-subtitle">Overzicht van exports, import status en fouten.</div>
+      <div class="card">
+        <div class="result" id="exportResult">Nog niets geladen.</div>
+        <div class="hint">Later: fetch export logs uit je sheet / script.</div>
+      </div>
+    </div>
+
+    <!-- Planning -->
+    <div id="screen-planning" class="screen">
+      <div class="page-title">Planning</div>
+      <div class="page-subtitle">Bekijk planning per dag/week/maand met filters.</div>
+      <div class="card">
+        <div class="result" id="planningResult">Nog niets geladen.</div>
+        <div class="hint">Later: kalenderweergave + zoeken per agent.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-bar">
+    <div class="tab active" onclick="showScreen('screen-trip', this)">
+      <span class="icon">▦</span>
+      <span class="label">Trip Analyse</span>
+    </div>
+    <div class="tab" onclick="showScreen('screen-export', this)">
+      <span class="icon">⇪</span>
+      <span class="label">Export Data</span>
+    </div>
+    <div class="tab" onclick="showScreen('screen-planning', this)">
+      <span class="icon">🗓</span>
+      <span class="label">Planning</span>
     </div>
   </div>
 
-</div>
+  <script>
+    /* ========= Telegram safe init (werkt ook buiten Telegram) ========= */
+    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg) tg.expand();
 
-<!-- Bottom Nav -->
-<div class="bottom-bar">
-  <div class="tab active" onclick="showScreen('screen-trip', this)">
-    <span class="icon">▦</span>
-    <span class="label">Trip Analyse</span>
-  </div>
-  <div class="tab" onclick="showScreen('screen-export', this)">
-    <span class="icon">⇪</span>
-    <span class="label">Export Data</span>
-  </div>
-  <div class="tab" onclick="showScreen('screen-planning', this)">
-    <span class="icon">🗓</span>
-    <span class="label">Planning</span>
-  </div>
-</div>
-
-<script>
-  // Telegram init
-  const tg = window.Telegram?.WebApp;
-  if (tg) tg.expand();
-
-  // ====== API (later invullen) ======
-  const API_URL = "";   // bv: https://script.google.com/macros/s/XXXX/exec
-  const API_SECRET = ""; // optioneel
-
-  // ====== Header user info ======
-  function initUser(){
-    const nameEl = document.getElementById("userName");
-    const subEl = document.getElementById("userSub");
-    const avatarEl = document.getElementById("avatar");
-
-    const u = tg?.initDataUnsafe?.user;
-    if (!u){
-      nameEl.innerText = "Niet ingelogd";
-      subEl.innerText = "Telegram";
-      avatarEl.innerText = "?";
-      return;
+    /* ========= PWA: service worker registreren ========= */
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js");
     }
 
-    const name = (u.first_name || u.username || "User");
-    nameEl.innerText = name;
-    subEl.innerText = u.username ? ("@" + u.username) : "Telegram user";
-    avatarEl.innerText = (name.trim()[0] || "?").toUpperCase();
-  }
-  initUser();
+    /* ========= API (later invullen) ========= */
+    const API_URL = "";     // bv: https://script.google.com/macros/s/XXXX/exec
+    const API_SECRET = "";  // optioneel
 
-  // ====== Screens ======
-  function showScreen(id, el){
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-    el.classList.add("active");
-  }
+    /* ========= Header user info ========= */
+    function initUser(){
+      const nameEl = document.getElementById("userName");
+      const subEl = document.getElementById("userSub");
+      const avatarEl = document.getElementById("avatar");
 
-  // ====== Trip chips ======
-  const trips = [];
-  for (let i = 41; i <= 68; i++) trips.push(`NP${i}`);
-  trips.push("Totaal");
+      const u = tg?.initDataUnsafe?.user;
+      if (!u){
+        nameEl.innerText = "Niet ingelogd";
+        subEl.innerText = "PWA / Browser";
+        avatarEl.innerText = "?";
+        return;
+      }
 
-  let selectedTrip = null;
-  const chipsEl = document.getElementById("tripChips");
-  const badgeEl = document.getElementById("selectedBadge");
-  const resultEl = document.getElementById("analysisResult");
-
-  trips.forEach(t => {
-    const chip = document.createElement("div");
-    chip.className = "chip";
-    chip.innerText = t;
-    chip.onclick = () => selectTrip(t, chip);
-    chipsEl.appendChild(chip);
-  });
-
-  function selectTrip(trip, chipEl){
-    selectedTrip = trip;
-
-    // active state
-    document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-    chipEl.classList.add("active");
-
-    badgeEl.innerText = `Geselecteerd: ${trip}`;
-    loadTripAnalysis(trip);
-  }
-
-  function refreshSelected(){
-    if (!selectedTrip){
-      resultEl.innerText = "Selecteer eerst een trip om te refreshen…";
-      return;
+      const name = (u.first_name || u.username || "User");
+      nameEl.innerText = name;
+      subEl.innerText = u.username ? ("@" + u.username) : "Telegram user";
+      avatarEl.innerText = (name.trim()[0] || "?").toUpperCase();
     }
-    loadTripAnalysis(selectedTrip);
-  }
+    initUser();
 
-  async function loadTripAnalysis(trip){
-    resultEl.innerText = `Laden… (${trip})`;
+    /* ========= Screens ========= */
+    function showScreen(id, el){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      el.classList.add("active");
+    }
 
-    // Demo zolang API_URL leeg is
-    if (!API_URL){
-      resultEl.innerText =
+    /* ========= Trip chips ========= */
+    const trips = [];
+    for (let i = 41; i <= 68; i++) trips.push(`NP${i}`);
+    trips.push("Totaal");
+
+    let selectedTrip = null;
+
+    const chipsEl  = document.getElementById("tripChips");
+    const badgeEl  = document.getElementById("selectedBadge");
+    const resultEl = document.getElementById("analysisResult");
+
+    trips.forEach(t => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.innerText = t;
+      chip.onclick = () => selectTrip(t, chip);
+      chipsEl.appendChild(chip);
+    });
+
+    function selectTrip(trip, chipEl){
+      selectedTrip = trip;
+      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+      chipEl.classList.add("active");
+      badgeEl.innerText = `Geselecteerd: ${trip}`;
+      loadTripAnalysis(trip);
+    }
+
+    function refreshSelected(){
+      if (!selectedTrip){
+        resultEl.innerText = "Selecteer eerst een trip om te refreshen…";
+        return;
+      }
+      loadTripAnalysis(selectedTrip);
+    }
+
+    async function loadTripAnalysis(trip){
+      resultEl.innerText = `Laden… (${trip})`;
+
+      // demo zolang API_URL leeg is
+      if (!API_URL){
+        resultEl.innerText =
 `[DEMO] Analyse voor ${trip}
 
 - Totaal ritten: 12
@@ -418,38 +440,38 @@
 - Afwijkingen: geen
 
 Zodra je API_URL invult, tonen we echte data uit je Google Sheet.`;
-      return;
-    }
-
-    try{
-      const params = new URLSearchParams();
-      params.set("mode","tripAnalyse");
-      params.set("trip", trip === "Totaal" ? "Totaal analyse" : trip);
-
-      if (API_SECRET) params.set("secret", API_SECRET);
-      if (tg?.initData) params.set("initData", tg.initData);
-
-      const url = `${API_URL}?${params.toString()}`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (!data.ok){
-        resultEl.innerText = `Error: ${data.error || "Onbekend"}`;
         return;
       }
 
-      if (data.analysisText){
-        resultEl.innerText = data.analysisText;
-      } else if (data.rows){
-        resultEl.innerText = JSON.stringify(data.rows, null, 2);
-      } else {
-        resultEl.innerText = JSON.stringify(data, null, 2);
+      try{
+        const params = new URLSearchParams();
+        params.set("mode","tripAnalyse");
+        params.set("trip", trip === "Totaal" ? "Totaal analyse" : trip);
+
+        if (API_SECRET) params.set("secret", API_SECRET);
+        if (tg?.initData) params.set("initData", tg.initData);
+
+        const url = `${API_URL}?${params.toString()}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.ok){
+          resultEl.innerText = `Error: ${data.error || "Onbekend"}`;
+          return;
+        }
+
+        if (data.analysisText){
+          resultEl.innerText = data.analysisText;
+        } else if (data.rows){
+          resultEl.innerText = JSON.stringify(data.rows, null, 2);
+        } else {
+          resultEl.innerText = JSON.stringify(data, null, 2);
+        }
+      } catch(err){
+        resultEl.innerText = `Fout bij laden: ${err?.message || err}`;
       }
-    } catch(err){
-      resultEl.innerText = `Fout bij laden: ${err?.message || err}`;
     }
-  }
-</script>
+  </script>
 
 </body>
 </html>
