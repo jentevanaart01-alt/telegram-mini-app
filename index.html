@@ -455,11 +455,11 @@
       hint.innerText = "Bezig met inloggen…";
 
       try{
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify({ mode: "login", pin })
-        });
+        const res = await fetch("/api/login", {
+  method: "POST",
+  headers: { "Content-Type":"application/json" },
+  body: JSON.stringify({ mode: "login", pin })
+});
         const data = await res.json();
 
         if (!data.ok){
