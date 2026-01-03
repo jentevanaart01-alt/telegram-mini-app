@@ -429,7 +429,7 @@
       }
 
       try {
-        const res = await fetch(`${API_URL}?mode=me&token=${encodeURIComponent(token)}`);
+        const res = await fetch(`/api/me?token=${encodeURIComponent(token)}`);
         const data = await res.json();
         if (!data.ok) {
           localStorage.removeItem(TOKEN_KEY);
