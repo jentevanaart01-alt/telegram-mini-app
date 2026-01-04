@@ -4,527 +4,460 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Mobile AL</title>
-
-  <!-- ✅ PWA -->
-  <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#0b0f17">
-
-  <!-- Telegram WebApp bridge -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
     :root{
-      --bg: #0b0f17;
-      --panel: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.10);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.62);
-      --muted2: rgba(255,255,255,0.45);
-      --accent: #7c5cff;
-      --accent2: #2ee59d;
-      --shadow: 0 12px 30px rgba(0,0,0,0.35);
-      --radius: 18px;
+      --bg:#0b0f17;
+      --panel:rgba(255,255,255,.06);
+      --border:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.62);
+      --accent:#7c5cff;
+      --shadow:0 12px 30px rgba(0,0,0,.35);
+      --r:18px;
     }
-
-    *{ box-sizing:border-box; }
+    *{box-sizing:border-box}
     body{
       margin:0;
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
       background:
         radial-gradient(1200px 600px at 20% -10%, rgba(124,92,255,0.25), transparent 60%),
         radial-gradient(900px 500px at 110% 10%, rgba(46,229,157,0.18), transparent 55%),
         var(--bg);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-
-    .top-bar{
-      position:fixed;
-      top:0; left:0; right:0;
-      height:70px;
+    .top{
+      position:fixed; top:0; left:0; right:0; height:70px;
+      display:flex; align-items:center; justify-content:space-between;
       padding:12px 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
+      background:rgba(11,15,23,.72);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.08);
       z-index:10;
-      backdrop-filter: blur(10px);
-      background: rgba(11,15,23,0.72);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
-
-    .user-pill{
-      display:flex;
-      align-items:center;
-      gap:10px;
+    .pill{
+      display:flex; align-items:center; gap:10px;
       padding:10px 12px;
       border-radius:999px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.08);
-      max-width: 65%;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      max-width:70%;
     }
-
-    .avatar{
-      width:34px; height:34px;
-      border-radius:999px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background: linear-gradient(135deg, rgba(124,92,255,0.9), rgba(46,229,157,0.85));
-      color: #0b0f17;
-      font-weight: 900;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.35);
-      flex: 0 0 auto;
+    .av{
+      width:34px; height:34px; border-radius:999px;
+      display:flex; align-items:center; justify-content:center;
+      background:linear-gradient(135deg, rgba(124,92,255,.9), rgba(46,229,157,.85));
+      color:#0b0f17; font-weight:900;
+      box-shadow:0 10px 24px rgba(0,0,0,.35);
+      flex:0 0 auto;
     }
-
-    .user-meta{ line-height:1.15; min-width: 0; }
-    .user-name{
-      font-size:13px;
-      font-weight:800;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-    .user-sub{
-      font-size:11px;
-      color: var(--muted);
-      margin-top:2px;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
-    .brand{
-      font-weight: 900;
-      letter-spacing: 0.6px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex: 0 0 auto;
-    }
-    .brand-badge{
-      width:10px; height:10px;
-      border-radius:999px;
-      background: var(--accent);
-      box-shadow: 0 0 0 6px rgba(124,92,255,0.15);
-    }
-    .brand-title{
-      font-size:15px;
-      color: rgba(255,255,255,0.92);
-    }
-
-    .content{
-      padding:14px;
-      padding-top:86px;
-      padding-bottom:92px;
-      max-width:720px;
-      margin:0 auto;
-    }
-
-    .screen{ display:none; }
-    .screen.active{ display:block; }
-
-    .page-title{
-      margin: 8px 0 4px;
-      font-size:22px;
-      font-weight: 900;
-      letter-spacing: -0.2px;
-    }
-    .page-subtitle{
-      margin: 0 0 14px;
-      font-size:13px;
-      color: var(--muted);
-    }
-
+    .meta{min-width:0}
+    .name{font-weight:900; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .sub{color:var(--muted); font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:900}
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--accent); box-shadow:0 0 0 6px rgba(124,92,255,.15)}
+    .content{max-width:900px;margin:0 auto;padding:86px 14px 92px}
+    .screen{display:none}
+    .screen.active{display:block}
+    .title{font-size:22px;font-weight:950;margin:8px 0 4px}
+    .desc{color:var(--muted);font-size:13px;margin:0 0 14px}
     .card{
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--r);
       padding:14px;
-      box-shadow: var(--shadow);
+      box-shadow:var(--shadow);
     }
-    .card + .card{ margin-top:12px; }
-
-    .row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .badge{
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      color: rgba(255,255,255,0.92);
-      background: rgba(124,92,255,0.18);
-      border: 1px solid rgba(124,92,255,0.35);
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-    }
-
+    .card+.card{margin-top:12px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
     .btn{
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.05);
-      color: rgba(255,255,255,0.92);
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      font-weight:900;
       cursor:pointer;
-      font-weight: 900;
     }
-    .btn:active{ transform: scale(0.99); }
-
-    .chip-grid{
-      display:grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap:10px;
-    }
-
-    .chip{
-      padding: 10px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.04);
-      color: rgba(255,255,255,0.85);
-      font-size: 12px;
-      font-weight: 850;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      cursor:pointer;
-      user-select:none;
-      transition: transform 0.08s ease, background 0.18s ease, border 0.18s ease;
-    }
-    .chip:active{ transform: scale(0.98); }
-    .chip.active{
-      background: linear-gradient(135deg, rgba(124,92,255,0.35), rgba(46,229,157,0.22));
-      border: 1px solid rgba(124,92,255,0.55);
-      color: rgba(255,255,255,0.95);
-    }
-
-    .result{
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 12px;
-      min-height: 150px;
-      white-space: pre-wrap;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 12px;
-      line-height: 1.45;
-      color: rgba(255,255,255,0.86);
-    }
-    .hint{
-      color: var(--muted2);
-      font-size: 12px;
-      margin-top: 10px;
-    }
-
-    .bottom-bar{
-      position:fixed;
-      bottom:0; left:0; right:0;
-      height:76px;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-      display:flex;
-      justify-content:space-around;
-      align-items:flex-end;
-      z-index:10;
-      backdrop-filter: blur(10px);
-      background: rgba(11,15,23,0.72);
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .tab{
-      width:33%;
-      text-align:center;
-      cursor:pointer;
-      user-select:none;
-      padding: 8px 8px;
-      border-radius: 16px;
-      transition: background 0.15s ease, border 0.15s ease;
-    }
-
-    .tab .icon{
-      display:block;
-      font-size: 16px;
-      line-height: 1;
-      margin-bottom: 6px;
-      color: rgba(255,255,255,0.70);
-    }
-
-    .tab .label{
-      font-size: 12px;
-      font-weight: 900;
-      color: rgba(255,255,255,0.72);
-    }
-
-    .tab.active{
-      background: rgba(124,92,255,0.14);
-      border: 1px solid rgba(124,92,255,0.28);
-    }
-    .tab.active .icon{ color: rgba(255,255,255,0.92); }
-    .tab.active .label{ color: rgba(255,255,255,0.92); }
-
-    /* input styling for login */
+    .btn:active{transform:scale(.99)}
     .input{
-      width: 100%;
+      width:100%;
       padding:12px 14px;
       border-radius:14px;
-      border:1px solid rgba(255,255,255,0.12);
-      background:rgba(255,255,255,0.05);
-      color:rgba(255,255,255,0.92);
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
       outline:none;
       font-weight:900;
     }
-
-    @media (max-width: 380px){
-      .chip-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .chips{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px}
+    .chip{
+      padding:10px; border-radius:999px; text-align:center;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      font-weight:900; font-size:12px; cursor:pointer; user-select:none;
     }
+    .chip.active{border-color:rgba(124,92,255,.55); background:rgba(124,92,255,.18)}
+    .grid{
+      display:grid; gap:12px;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+    }
+    .kpi{
+      border-radius:16px; padding:12px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .kpi .k{color:var(--muted); font-size:12px; font-weight:800}
+    .kpi .v{font-size:18px; font-weight:950; margin-top:6px}
+    .tablewrap{overflow:auto; border-radius:16px; border:1px solid rgba(255,255,255,.08)}
+    table{width:100%; border-collapse:collapse; min-width:640px}
+    th,td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.06); font-size:12px}
+    th{color:rgba(255,255,255,.85); text-align:left; position:sticky; top:0; background:rgba(11,15,23,.90)}
+    td{color:rgba(255,255,255,.82)}
+    .hint{color:var(--muted); font-size:12px; margin-top:8px}
+    .bottom{
+      position:fixed; left:0; right:0; bottom:0; height:76px;
+      display:flex; justify-content:space-around; align-items:flex-end;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      background:rgba(11,15,23,.72);
+      backdrop-filter:blur(10px);
+      border-top:1px solid rgba(255,255,255,.08);
+      z-index:10;
+    }
+    .tab{width:33%; text-align:center; padding:8px; border-radius:16px; cursor:pointer; user-select:none}
+    .tab .ic{display:block; margin-bottom:6px; opacity:.85}
+    .tab .lb{font-size:12px; font-weight:950; opacity:.85}
+    .tab.active{background:rgba(124,92,255,.14); border:1px solid rgba(124,92,255,.28)}
+    @media(max-width:420px){ .chips{grid-template-columns:repeat(3,minmax(0,1fr));} .grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
   </style>
 </head>
-
 <body>
 
-  <!-- Top Bar -->
-  <div class="top-bar">
-    <div class="user-pill">
-      <div class="avatar" id="avatar">?</div>
-      <div class="user-meta">
-        <div class="user-name" id="userName">Niet ingelogd</div>
-        <div class="user-sub" id="userSub">PWA / Browser</div>
+  <div class="top">
+    <div class="pill">
+      <div class="av" id="av">?</div>
+      <div class="meta">
+        <div class="name" id="uName">Niet ingelogd</div>
+        <div class="sub" id="uSub">Mobile AL</div>
       </div>
     </div>
-
-    <div class="brand">
-      <div class="brand-badge"></div>
-      <div class="brand-title">Mobile AL</div>
-    </div>
+    <div class="brand"><div class="dot"></div><div>Mobile AL</div></div>
   </div>
 
-  <!-- Content -->
   <div class="content">
 
-    <!-- ✅ Login screen -->
-    <div id="screen-login" class="screen active">
-      <div class="page-title">Inloggen</div>
-      <div class="page-subtitle">Vul je pincode in om Mobile AL te gebruiken.</div>
-
+    <!-- LOGIN -->
+    <div id="scr-login" class="screen active">
+      <div class="title">Inloggen</div>
+      <div class="desc">Vul je pincode in om Mobile AL te gebruiken.</div>
       <div class="card">
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <input id="pinInput" class="input" inputmode="numeric" maxlength="8" placeholder="PIN (bv. 1234)" />
-          <button class="btn" style="min-width:120px;" onclick="doLogin()">Login</button>
+        <div class="row" style="gap:12px; align-items:flex-end">
+          <div style="flex:1; min-width:220px">
+            <div class="hint" style="margin:0 0 8px">PIN</div>
+            <input id="pin" class="input" inputmode="numeric" maxlength="8" placeholder="bv. 3214" />
+          </div>
+          <button class="btn" style="min-width:120px" onclick="login()">Login</button>
         </div>
-        <div class="hint" id="loginHint">Nog niet ingelogd.</div>
+        <div class="hint" id="loginMsg">Nog niet ingelogd.</div>
       </div>
     </div>
 
-    <!-- Trip Analyse -->
-    <div id="screen-trip" class="screen">
-      <div class="page-title">Trip Analyse</div>
-      <div class="page-subtitle">Selecteer een trip (NP41–NP68) of “Totaal”. De analyse verschijnt hieronder.</div>
+    <!-- TRIP -->
+    <div id="scr-trip" class="screen">
+      <div class="title">Trip Analyse</div>
+      <div class="desc">Kies een trip. KPI’s + details worden geladen uit je Sheet.</div>
 
       <div class="card">
         <div class="row">
-          <div class="badge" id="selectedBadge">Geen selectie</div>
-          <button class="btn" onclick="refreshSelected()">Refresh</button>
+          <div class="hint" id="tripSel">Geen selectie</div>
+          <button class="btn" onclick="reloadTrip()">Refresh</button>
         </div>
-
-        <div class="chip-grid" id="tripChips"></div>
-        <div class="hint">Nu beschermd: alleen ingelogde users kunnen data opvragen.</div>
+        <div class="chips" id="chips"></div>
+        <div class="hint">Bron: tab <b>TripSummary</b> (trip | key | value).</div>
       </div>
 
       <div class="card">
-        <div class="result" id="analysisResult">Selecteer een trip om te starten…</div>
+        <div class="grid" id="kpis"></div>
       </div>
-    </div>
 
-    <!-- Export Data -->
-    <div id="screen-export" class="screen">
-      <div class="page-title">Export Data</div>
-      <div class="page-subtitle">Overzicht van exports, import status en fouten.</div>
       <div class="card">
-        <div class="result" id="exportResult">Nog niets geladen.</div>
-        <div class="hint">Later: fetch export logs uit je sheet / script.</div>
+        <div class="hint" style="margin:0 0 10px">Details</div>
+        <div class="tablewrap">
+          <table id="tripTable"></table>
+        </div>
       </div>
     </div>
 
-    <!-- Planning -->
-    <div id="screen-planning" class="screen">
-      <div class="page-title">Planning</div>
-      <div class="page-subtitle">Bekijk planning per dag/week/maand met filters.</div>
+    <!-- EXPORT -->
+    <div id="scr-export" class="screen">
+      <div class="title">Export Data</div>
+      <div class="desc">Laatste rijen uit je export-sheet.</div>
+
       <div class="card">
-        <div class="result" id="planningResult">Nog niets geladen.</div>
-        <div class="hint">Later: kalenderweergave + zoeken per agent.</div>
+        <div class="row">
+          <div style="flex:1; min-width:200px">
+            <input id="exportSearch" class="input" placeholder="Zoek in export (bv. klantnaam, taaknummer…)" oninput="renderExportFilter()" />
+          </div>
+          <button class="btn" onclick="loadExport()">Refresh</button>
+        </div>
+        <div class="hint">Bron: tab <b>Export</b> (headers op rij 1).</div>
+      </div>
+
+      <div class="card">
+        <div class="tablewrap">
+          <table id="exportTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANNING -->
+    <div id="scr-plan" class="screen">
+      <div class="title">Planning</div>
+      <div class="desc">Planning uit je planning-sheet.</div>
+
+      <div class="card">
+        <div class="row">
+          <div style="flex:1; min-width:200px">
+            <input id="planMonth" class="input" placeholder="(optioneel) maand filter bv 2026-01" />
+          </div>
+          <button class="btn" onclick="loadPlanning()">Laden</button>
+        </div>
+        <div class="hint">Bron: tab <b>Planning</b> (headers op rij 1).</div>
+      </div>
+
+      <div class="card">
+        <div class="tablewrap">
+          <table id="planTable"></table>
+        </div>
       </div>
     </div>
 
   </div>
 
-  <!-- Bottom Nav -->
-  <div class="bottom-bar" id="bottomBar">
-    <div class="tab active" onclick="showScreen('screen-trip', this)">
-      <span class="icon">▦</span>
-      <span class="label">Trip Analyse</span>
-    </div>
-    <div class="tab" onclick="showScreen('screen-export', this)">
-      <span class="icon">⇪</span>
-      <span class="label">Export Data</span>
-    </div>
-    <div class="tab" onclick="showScreen('screen-planning', this)">
-      <span class="icon">🗓</span>
-      <span class="label">Planning</span>
-    </div>
+  <div class="bottom" id="bottom" style="display:none">
+    <div class="tab active" onclick="show('scr-trip', this)"><span class="ic">▦</span><span class="lb">Trip Analyse</span></div>
+    <div class="tab" onclick="show('scr-export', this)"><span class="ic">⇪</span><span class="lb">Export Data</span></div>
+    <div class="tab" onclick="show('scr-plan', this)"><span class="ic">🗓</span><span class="lb">Planning</span></div>
   </div>
 
-  <script>
-    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-    if (tg) tg.expand();
+<script>
+  const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+  if (tg) tg.expand();
 
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/service-worker.js");
-    }
+  // ✅ JOUW Apps Script Web App URL (de /exec)
+  const API_URL = "https://script.google.com/macros/s/AKfycbyEJCnEl9l4XMd0S7CHTUFdyq7gRthpqrRygWlI3tm4-ykJWTc9wW6oY9dKI9K-fiJL/exec";
 
-    // ✅ jouw backend
-    const API_URL = "https://script.google.com/macros/s/AKfycbyEJCnEl9l4XMd0S7CHTUFdyq7gRthpqrRygWlI3tm4-ykJWTc9wW6oY9dKI9K-fiJL/exec";
-    const API_SECRET = "";
+  const TOKEN_KEY = "mobile_al_token";
+  let token = localStorage.getItem(TOKEN_KEY) || "";
+  let selectedTrip = "";
 
-    // ===== UI helpers =====
-    function hideBottomBar(){ document.getElementById("bottomBar").style.display = "none"; }
-    function showBottomBar(){ document.getElementById("bottomBar").style.display = "flex"; }
+  // Trips NP41-NP68 + Totaal
+  const TRIPS = [...Array(28)].map((_,i)=>"NP"+(41+i)).concat(["Totaal"]);
 
-    function showScreenById(id){
-      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-    }
+  function setHeader(name, sub){
+    document.getElementById("uName").innerText = name || "Niet ingelogd";
+    document.getElementById("uSub").innerText  = sub || "Mobile AL";
+    document.getElementById("av").innerText    = name ? name.trim()[0].toUpperCase() : "?";
+  }
 
-    // ===== Header user info =====
-    function setHeader(name, sub){
-      const nameEl = document.getElementById("userName");
-      const subEl = document.getElementById("userSub");
-      const avatarEl = document.getElementById("avatar");
-      nameEl.innerText = name || "Niet ingelogd";
-      subEl.innerText = sub || "PWA / Browser";
-      avatarEl.innerText = (name && name.trim()[0]) ? name.trim()[0].toUpperCase() : "?";
-    }
-    setHeader("Niet ingelogd", "PWA / Browser");
+  function show(id, el){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    el.classList.add("active");
+  }
 
-    // ===== Tabs navigation (alleen als ingelogd) =====
-    function showScreen(id, el){
-      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      el.classList.add("active");
-    }
+  function apiGet(params){
+    const u = new URL(API_URL);
+    Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));
+    return fetch(u.toString()).then(r=>r.json());
+  }
 
-    // ===== Login flow =====
-    const TOKEN_KEY = "mobile_al_token";
-    hideBottomBar();
-
-    (async function bootLogin(){
-      const token = localStorage.getItem(TOKEN_KEY);
-      if (!token) {
-        showScreenById("screen-login");
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/me?token=${encodeURIComponent(token)}`);
-        const data = await res.json();
-        if (!data.ok) {
-          localStorage.removeItem(TOKEN_KEY);
-          showScreenById("screen-login");
-          return;
-        }
-
-        // ingelogd
-        setHeader(data.user.name, data.user.role);
-        showBottomBar();
-        showScreenById("screen-trip");
-      } catch(e){
-        localStorage.removeItem(TOKEN_KEY);
-        showScreenById("screen-login");
-      }
-    })();
-
-    async function doLogin(){
-      const pin = document.getElementById("pinInput").value.trim();
-      const hint = document.getElementById("loginHint");
-      if (!pin) { hint.innerText = "Vul een PIN in."; return; }
-
-      hint.innerText = "Bezig met inloggen…";
-
-      try{
-        const res = await fetch("/api/login", {
-  method: "POST",
-  headers: { "Content-Type":"application/json" },
-  body: JSON.stringify({ mode: "login", pin })
-});
-        const data = await res.json();
-
-        if (!data.ok){
-          hint.innerText = data.error || "Login mislukt.";
-          return;
-        }
-
-        localStorage.setItem(TOKEN_KEY, data.token);
-
-        setHeader(data.user.name, data.user.role);
-        showBottomBar();
-        showScreenById("screen-trip");
-      } catch(err){
-        hint.innerText = "Fout: " + (err?.message || err);
-      }
-    }
-
-    // ===== Trip chips =====
-    const trips = [];
-    for (let i = 41; i <= 68; i++) trips.push(`NP${i}`);
-    trips.push("Totaal");
-
-    let selectedTrip = null;
-
-    const chipsEl  = document.getElementById("tripChips");
-    const badgeEl  = document.getElementById("selectedBadge");
-    const resultEl = document.getElementById("analysisResult");
-
-    trips.forEach(t => {
-      const chip = document.createElement("div");
-      chip.className = "chip";
-      chip.innerText = t;
-      chip.onclick = () => selectTrip(t, chip);
-      chipsEl.appendChild(chip);
+  async function boot(){
+    // build chips
+    const chips = document.getElementById("chips");
+    chips.innerHTML = "";
+    TRIPS.forEach(t=>{
+      const d=document.createElement("div");
+      d.className="chip";
+      d.innerText=t;
+      d.onclick=()=>selectTrip(t,d);
+      chips.appendChild(d);
     });
 
-    function selectTrip(trip, chipEl){
-      selectedTrip = trip;
-      document.querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-      chipEl.classList.add("active");
-      badgeEl.innerText = `Geselecteerd: ${trip}`;
-      loadTripAnalysis(trip);
+    if (!token){
+      document.getElementById("bottom").style.display="none";
+      return;
     }
 
-    function refreshSelected(){
-      if (!selectedTrip){
-        resultEl.innerText = "Selecteer eerst een trip om te refreshen…";
-        return;
-      }
-      loadTripAnalysis(selectedTrip);
+    // check token
+    try{
+      const me = await apiGet({ mode:"me", token });
+      if (!me.ok) throw new Error(me.error || "not ok");
+      setHeader(me.user.name, me.user.role);
+      document.getElementById("bottom").style.display="flex";
+      switchToApp();
+    }catch(e){
+      token=""; localStorage.removeItem(TOKEN_KEY);
+      document.getElementById("bottom").style.display="none";
+    }
+  }
+
+  function switchToApp(){
+    document.getElementById("scr-login").classList.remove("active");
+    document.getElementById("scr-trip").classList.add("active");
+    loadExport(); // preload
+    loadPlanning(); // preload
+  }
+
+  async function login(){
+    const msg=document.getElementById("loginMsg");
+    const pin=document.getElementById("pin").value.trim();
+    if(!pin){ msg.innerText="Vul je PIN in."; return; }
+    msg.innerText="Inloggen…";
+
+    try{
+      const res = await fetch(API_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ mode:"login", pin })
+      });
+      const data = await res.json();
+      if(!data.ok){ msg.innerText=data.error || "Login mislukt"; return; }
+
+      token=data.token;
+      localStorage.setItem(TOKEN_KEY, token);
+      setHeader(data.user.name, data.user.role);
+      document.getElementById("bottom").style.display="flex";
+      msg.innerText="Login OK ✅";
+      switchToApp();
+    }catch(e){
+      msg.innerText="Fout: " + (e.message || e);
+    }
+  }
+
+  function selectTrip(trip, el){
+    selectedTrip = trip;
+    document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+    el.classList.add("active");
+    document.getElementById("tripSel").innerText = "Geselecteerd: " + trip;
+    loadTrip(trip);
+  }
+
+  async function reloadTrip(){
+    if(!selectedTrip) return;
+    loadTrip(selectedTrip);
+  }
+
+  function renderTrip(items){
+    // KPI mapping (toon beste 6)
+    const map = {};
+    items.forEach(it => map[it.key] = it.value);
+
+    const kpiList = [
+      ["Klanten", map.klanten ?? map.customers ?? "-"],
+      ["Tijd bij klanten (min)", map.klanten_min ?? map.tijd_bij_klanten ?? "-"],
+      ["Rijden (min)", map.rijden_min ?? map.rijd_min ?? "-"],
+      ["Pauze/Overig (min)", map.pauze_min ?? "-"],
+      ["Stilstand (min)", map.stilstand_min ?? "-"],
+      ["Ritten", map.ritten ?? map.trips ?? "-"],
+    ];
+
+    const kpis = document.getElementById("kpis");
+    kpis.innerHTML="";
+    kpiList.forEach(([k,v])=>{
+      const div=document.createElement("div");
+      div.className="kpi";
+      div.innerHTML = `<div class="k">${k}</div><div class="v">${v}</div>`;
+      kpis.appendChild(div);
+    });
+
+    // detail table
+    const tbl = document.getElementById("tripTable");
+    tbl.innerHTML = `
+      <thead><tr><th>Key</th><th>Value</th></tr></thead>
+      <tbody>
+        ${items.map(it=>`<tr><td>${escapeHtml(it.key)}</td><td>${escapeHtml(String(it.value))}</td></tr>`).join("")}
+      </tbody>
+    `;
+  }
+
+  async function loadTrip(trip){
+    renderTrip([{key:"status", value:"Laden…"}]);
+    const data = await apiGet({ mode:"trip", token, trip });
+    if(!data.ok){
+      renderTrip([{key:"error", value:data.error || "Onbekend"}]);
+      return;
+    }
+    renderTrip(data.data.items || []);
+  }
+
+  let exportCache = null;
+  async function loadExport(){
+    const data = await apiGet({ mode:"export", token, limit:"80" });
+    if(!data.ok){
+      document.getElementById("exportTable").innerHTML =
+        `<thead><tr><th>Fout</th></tr></thead><tbody><tr><td>${escapeHtml(data.error||"Onbekend")}</td></tr></tbody>`;
+      return;
+    }
+    exportCache = data.data;
+    renderExport(exportCache.headers, exportCache.rows);
+  }
+
+  function renderExportFilter(){
+    if(!exportCache) return;
+    const q = (document.getElementById("exportSearch").value || "").toLowerCase().trim();
+    if(!q){ renderExport(exportCache.headers, exportCache.rows); return; }
+
+    const filtered = exportCache.rows.filter(r =>
+      r.some(cell => String(cell || "").toLowerCase().includes(q))
+    );
+    renderExport(exportCache.headers, filtered);
+  }
+
+  function renderExport(headers, rows){
+    const tbl = document.getElementById("exportTable");
+    const safeHeaders = (headers || []).slice(0, 12); // eerste 12 kolommen tonen (sneller)
+    tbl.innerHTML = `
+      <thead><tr>${safeHeaders.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${rows.slice().reverse().map(r=>`
+          <tr>${safeHeaders.map((_,i)=>`<td>${escapeHtml(String(r[i] ?? ""))}</td>`).join("")}</tr>
+        `).join("")}
+      </tbody>
+    `;
+  }
+
+  async function loadPlanning(){
+    const month = document.getElementById("planMonth").value.trim();
+    const params = { mode:"planning", token };
+    if(month) params.month = month;
+
+    const data = await apiGet(params);
+    if(!data.ok){
+      document.getElementById("planTable").innerHTML =
+        `<thead><tr><th>Fout</th></tr></thead><tbody><tr><td>${escapeHtml(data.error||"Onbekend")}</td></tr></tbody>`;
+      return;
     }
 
-    async function loadTripAnalysis(trip){
-      // ⚠️ later: we maken hier een protected endpoint met token
-      resultEl.innerText = `Laden… (${trip})`;
+    const headers = (data.data.headers || []).slice(0, 20);
+    const rows = (data.data.rows || []).slice(0, 60);
 
-      // demo zolang tripAnalyse nog niet bestaat in je backend
-      resultEl.innerText =
-`[DEMO] Analyse voor ${trip}
+    const tbl = document.getElementById("planTable");
+    tbl.innerHTML = `
+      <thead><tr>${headers.map(h=>`<th>${escapeHtml(h)}</th>`).join("")}</tr></thead>
+      <tbody>
+        ${rows.map(r=>`<tr>${headers.map((_,i)=>`<td>${escapeHtml(String(r[i] ?? ""))}</td>`).join("")}</tr>`).join("")}
+      </tbody>
+    `;
+  }
 
-Login werkt ✅
-Volgende stap: in Apps Script maken we endpoint "tripAnalyse" (met token check)
-en dan komt hier echte data uit je Google Sheet.`;
-    }
-  </script>
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+  }
 
+  boot();
+</script>
 </body>
 </html>
